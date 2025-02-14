@@ -2,6 +2,7 @@ package net.weg.lista.controller;
 
 import net.weg.lista.model.User;
 import net.weg.lista.repository.UserRepository;
+import net.weg.lista.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,13 +23,18 @@ public class UserController {
     private UserRepository repository;
     @Autowired
     private PasswordEncoder encoder;
+    private UserService service;
 
     @PostMapping("/register")
     public ResponseEntity<User> registerUser(@RequestBody User user) {
-        User userSave = new User(UUID.randomUUID().toString(), user.getNome(), user.getEmail(),
-                encoder.encode(user.getSenha()));
-        repository.save(userSave);
-        return ResponseEntity.ok(userSave);
+        try {
+            User userSave = new User(UUID.randomUUID().toString(), user.getNome(), user.getEmail(),
+                    encoder.encode(user.getSenha()));
+            repository.save(userSave);
+            return ResponseEntity.ok(userSave);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+        }
     }
 
     @PostMapping("/login")
@@ -38,6 +44,7 @@ public class UserController {
 
         if (userTest != null && encoder.matches(user.getSenha(), userTest.getSenha())) {
             response.put("message", "Login realizado com sucesso!");
+            response.put("userId", userTest.getId());
             return ResponseEntity.ok(response);
         }
         response.put("error", "Credenciais incorretas");
