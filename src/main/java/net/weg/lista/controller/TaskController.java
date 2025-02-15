@@ -8,10 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/task")
@@ -43,9 +40,20 @@ public class TaskController {
         }
     }
 
-    @GetMapping
-    public ResponseEntity<List<Task>> getAllTasksByUserId(@RequestParam("userId") String userId) {
-        return ResponseEntity.ok(repository.findTasksByUserId(userId));
+    @GetMapping("/{userId}")
+    public ResponseEntity<List<Task>> getAllTasksByUserId(@PathVariable String userId) {
+        try {
+            UUID.fromString(userId);
+
+            List<Task> tasks = repository.findTasksByUserId(userId);
+
+            return ResponseEntity.ok(tasks);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @DeleteMapping("/{id}")
@@ -53,5 +61,25 @@ public class TaskController {
         Task taskDelete = repository.findById(id).get();
         repository.delete(taskDelete);
         return ResponseEntity.ok(id);
+    }
+
+    @PutMapping("/{taskId}")
+    public ResponseEntity<String> updateTaskStatus(
+            @PathVariable String taskId,
+            @RequestBody Map<String, Boolean> request
+    ) {
+        try {
+            boolean newStatus = request.get("status");
+            Task task = repository.findById(taskId)
+                    .orElseThrow(() -> new RuntimeException("Tarefa não encontrada"));
+
+            task.setStatus(newStatus);
+            repository.save(task);
+
+            return ResponseEntity.ok("Status atualizado com sucesso");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }
