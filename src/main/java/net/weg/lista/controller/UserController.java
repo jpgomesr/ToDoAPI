@@ -1,53 +1,61 @@
 package net.weg.lista.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.AllArgsConstructor;
+import net.weg.lista.model.Task;
 import net.weg.lista.model.User;
-import net.weg.lista.repository.UserRepository;
 import net.weg.lista.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
+@AllArgsConstructor
 @RestController
 @RequestMapping("/user")
 public class UserController {
-    @Autowired
-    private UserRepository repository;
-    @Autowired
-    private PasswordEncoder encoder;
     private UserService service;
 
     @PostMapping("/register")
-    public ResponseEntity<User> registerUser(@RequestBody User user) {
-        try {
-            User userSave = new User(UUID.randomUUID().toString(), user.getNome(), user.getEmail(),
-                    encoder.encode(user.getSenha()));
-            repository.save(userSave);
-            return ResponseEntity.ok(userSave);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
-        }
+    @Tag(name = "Usuário", description = "Operações relacionadas a usuários")
+    @Operation(summary = "Registro de usuário", description = "Cria e retorna um usuário")
+    @ApiResponse(responseCode = "200", description = "Usuário registrado com sucesso", content = @Content(schema = @Schema(implementation = Task.class)))
+    @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    public ResponseEntity<User> registerUser(
+            @Parameter(description = "Objeto Usuário a ser criado", required = true,
+                    content = @Content(schema = @Schema(implementation = User.class)))
+            @RequestBody User user
+    ) {
+        return service.registerUser(user);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> loginUser(@RequestBody User user) {
-        Map<String, String> response = new HashMap<>();
-        User userTest = repository.findUserByEmail(user.getEmail());
+    @Tag(name = "Usuário", description = "Operações relacionadas a usuários")
+    @Operation(summary = "Login de usuário", description = "Login de usuário e retorno de id caso existente")
+    @ApiResponse(responseCode = "200", description = "Retorna o id do usuário", content = @Content(schema = @Schema(implementation = Task.class)))
+    @ApiResponse(responseCode = "401", description = "Credenciais de login incorretas ou inexistentes")
+    public ResponseEntity<Map<String, String>> loginUser(
+            @Parameter(description = "Objeto Usuário a ser autenticado", required = true,
+                    content = @Content(schema = @Schema(implementation = Task.class)))
+            @RequestBody User user
+    ) {
+        return service.loginUser(user);
+    }
 
-        if (userTest != null && encoder.matches(user.getSenha(), userTest.getSenha())) {
-            response.put("message", "Login realizado com sucesso!");
-            response.put("userId", userTest.getId());
-            return ResponseEntity.ok(response);
-        }
-        response.put("error", "Credenciais incorretas");
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    @GetMapping("/{id}")
+    @Tag(name = "Usuário", description = "Operações relacionadas a usuários")
+    @Operation(summary = "Busca de usuário", description = "Retorna caso usuário for existente no banco de dados")
+    @ApiResponse(responseCode = "200", description = "Usuário encontrado", content = @Content(schema = @Schema(implementation = Task.class)))
+    @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
+    public ResponseEntity<User> getUser(
+            @Parameter(description = "Id do usuário a ser buscado", required = true)
+            @PathVariable String id
+    ) {
+        return service.getUser(id);
     }
 }
