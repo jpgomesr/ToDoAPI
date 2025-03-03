@@ -1,7 +1,7 @@
 package net.weg.lista.service;
 
 import lombok.AllArgsConstructor;
-import net.weg.lista.model.Task;
+import net.weg.lista.model.entity.Task;
 import net.weg.lista.repository.TaskRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

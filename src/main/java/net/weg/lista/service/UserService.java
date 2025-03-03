@@ -1,7 +1,9 @@
 package net.weg.lista.service;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
-import net.weg.lista.model.User;
+import net.weg.lista.model.dto.UserPutDTO;
+import net.weg.lista.model.entity.User;
 import net.weg.lista.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -74,5 +76,26 @@ public class UserService {
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
+    }
+
+    /**
+     * Busca um usuário e depois atualiza suas informações
+     *
+     * @param userDto Dto de usuário apenas com informações pertinentes
+     * @return ResponseEntity<User>
+     */
+    public ResponseEntity<User> editUser(UserPutDTO userDto) {
+        User user = repository.findById(userDto.id()).get();
+        if (!passwordMatcher(userDto.senha(), user.getSenha())) {
+            throw new IllegalArgumentException("Senha atual não coincide");
+        }
+        user.setNome(userDto.nome());
+        user.setEmail(userDto.email());
+        user.setSenha(encoder.encode(userDto.novaSenha()));
+        return ResponseEntity.ok(repository.save(user));
+    }
+
+    private boolean passwordMatcher(@NotBlank String senha, String senhaCripto) {
+        return encoder.matches(senha, senhaCripto);
     }
 }

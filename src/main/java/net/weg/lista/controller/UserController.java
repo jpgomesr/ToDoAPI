@@ -6,10 +6,13 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import net.weg.lista.model.Task;
-import net.weg.lista.model.User;
+import net.weg.lista.model.dto.UserPutDTO;
+import net.weg.lista.model.entity.Task;
+import net.weg.lista.model.entity.User;
 import net.weg.lista.service.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -57,5 +60,22 @@ public class UserController {
             @PathVariable String id
     ) {
         return service.getUser(id);
+    }
+
+    @PutMapping("/")
+    @Tag(name = "Usuário", description = "Operações relacionadas a usuários")
+    @Operation(summary = "Editar um usuário", description = "Retorna o usuário atualizado após edição")
+    @ApiResponse(responseCode = "200", description = "Usuário editado", content = @Content(schema = @Schema(implementation = Task.class)))
+    @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
+    public ResponseEntity<User> editUser(
+            @Parameter(description = "Id do usuário a ser buscado", required = true)
+            @RequestBody @Valid UserPutDTO userDto
+    ) {
+        return service.editUser(userDto);
+    }
+
+    @GetMapping("/teste")
+    public ResponseEntity<String> testeGet() {
+        return new ResponseEntity<>("teste", HttpStatus.OK);
     }
 }

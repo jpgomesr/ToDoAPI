@@ -1,4 +1,4 @@
-package net.weg.lista.model;
+package net.weg.lista.model.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

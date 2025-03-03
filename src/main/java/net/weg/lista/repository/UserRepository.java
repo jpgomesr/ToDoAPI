@@ -1,6 +1,6 @@
 package net.weg.lista.repository;
 
-import net.weg.lista.model.User;
+import net.weg.lista.model.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

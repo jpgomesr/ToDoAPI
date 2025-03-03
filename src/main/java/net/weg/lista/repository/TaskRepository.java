@@ -1,9 +1,8 @@
 package net.weg.lista.repository;
 
-import net.weg.lista.model.Task;
+import net.weg.lista.model.entity.Task;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
