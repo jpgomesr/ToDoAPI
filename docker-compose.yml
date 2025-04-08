@@ -3,32 +3,55 @@ version: '3.8'
 services:
   # Docker para o banco de dados
   db:
+    # Imagem do banco de dados
     image: mysql:5.7
+    # Nome do container da imagem
     container_name: mysql_db
+    # ‘Restart’ quando dá erro
     restart: always
+    # Variáveis de ambiente (env)
     environment:
+      # Senha do root
       MYSQL_ROOT_PASSWORD: rootpassword
+      # Nome do banco
       MYSQL_DATABASE: mydatabase
+      # Utilizador padrão
       MYSQL_USER: myuser
+      # Senha do utilizador padrão
       MYSQL_PASSWORD: mypassword
+    # Portas de funcionamento da imagem
     ports:
+      # XXXX:XXXX primeiro quarteto é a porta para fora do container, segundo quarteto é a porta interna do container
       - "3306:3306"
+    # Armazenamento
     volumes:
-      - mysql_data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql # Onde vai ficar o volume do banco de dados
 
   # Docker à API Spring Boot
   api:
-    image: api_todolist  # (opcional) nome da imagem resultante
+    # Nome da imagem do back-end
+    image: api_todolist
+    # Nome do container do back-end
     container_name: api_todolist
+    # ‘Restart’ quando dá erro
     restart: always
+    # Variáveis de ambiente (env)
     environment:
+      # Endpoint do banco de dados
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/mydatabase
+      # Utilizador para uso
       SPRING_DATASOURCE_USERNAME: myuser
+      # Senha do utilizador
       SPRING_DATASOURCE_PASSWORD: mypassword
+    # Portas de funcionamento da imagem
     ports:
+      # XXXX:XXXX primeiro quarteto é a porta para fora do container, segundo quarteto é a porta interna do container
       - "8086:8086"
+    # Dependências
     depends_on:
+      # Back-end depende do banco de dados para existir
       - db
 
 volumes:
+  # Nome do volume do banco de dados
   mysql_data:
