@@ -26,6 +26,10 @@ services:
     # Armazenamento
     volumes:
       - mysql_data:/var/lib/mysql # Onde vai ficar o volume do banco de dados
+    # Rede
+    networks:
+      # Nome da rede conectada
+      - app_network
 
   # Docker à API Spring Boot
   api:
@@ -51,7 +55,18 @@ services:
     depends_on:
       # Back-end depende do banco de dados para existir
       - db
+    # Rede
+    networks:
+      # Nome da rede conectada
+      - app_network
 
 volumes:
   # Nome do volume do banco de dados
   mysql_data:
+
+# Configuração de rede
+networks:
+  # Nome da rede
+  app_network:
+    # Tipo de conexão entre containers da rede
+    driver: bridge
